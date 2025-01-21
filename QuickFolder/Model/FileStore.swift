@@ -6,9 +6,12 @@
 //
 
 import FileKit
+import Ifrit
 import SwiftData
 import SwiftUI
 import UniformTypeIdentifiers
+
+let fuse = Fuse()
 
 protocol Selectable: Hashable, CaseIterable {
   var title: String { get }
@@ -162,20 +165,21 @@ class FileStore: ObservableObject {
     didSet { encodeDirectories() }
   }
 
-  @Published var selectedDirectoryId: UUID?
   @Published var isHiddenFilter: Bool = false
   @Published var selectedFiles: [FileInfo] = []
   @Published var isWindowVisible: Bool = true
-  @Published var selectedDirectory: DirectoryInfo? {
+  @Published var rootSelectedDirectoryID: UUID?
+  @Published var currentDirectoryID: UUID?
+  @Published var rootSelectedDirectory: DirectoryInfo? {
     didSet {
-      files = FileService.shared.getFiles(at: selectedDirectory?.url)
+      files = FileService.shared.getFiles(at: rootSelectedDirectory?.url)
       selectedFiles = files.filter { $0.isHidden == isHiddenFilter }
     }
   }
 
   init() {
     decodeDirectories()
-    selectedDirectory = directories.first
+    rootSelectedDirectory = directories.first
   }
 
   func decodeDirectories() {
@@ -194,25 +198,28 @@ class FileStore: ObservableObject {
   func chooseFolder(url: URL?) -> DirectoryInfo? {
     let info = directories.first { $0.url == url }
     if info != nil {
-      selectedDirectory = info
+      rootSelectedDirectory = info
     } else if let url = url {
       let info = DirectoryInfo(name: url.lastPathComponent, url: url)
-      selectedDirectory = info
+      rootSelectedDirectory = info
     }
-    return selectedDirectory
+    currentDirectoryID = rootSelectedDirectory?.id
+    return rootSelectedDirectory
   }
 
   func removeFolder(directory: DirectoryInfo) {
     directories.remove(at: directories.firstIndex { $0 == directory }!)
-    if selectedDirectory == directory {
-      _ = chooseFolder(url: directories.first?.url)
+    if rootSelectedDirectory == directory {
+      let info = chooseFolder(url: directories.first?.url)
+      currentDirectoryID = info?.id
     }
   }
 
   func removeAllFolder() {
     directories.removeAll()
-    selectedDirectory = nil
-    selectedDirectoryId = nil
+    rootSelectedDirectory = nil
+    rootSelectedDirectoryID = nil
+    currentDirectoryID = nil
   }
 
   func addFolder(url: URL) -> DirectoryInfo? {
@@ -244,5 +251,15 @@ class FileStore: ObservableObject {
     selectedFiles = files.filter { file in
       file.creationDate >= range.range.start && file.creationDate <= range.range.end
     }
+  }
+
+  func stringFilter(by name: String) {
+    if name.isEmpty {
+      selectedFiles = files
+      return
+    }
+    let names = files.map { $0.name }
+    let result = fuse.searchSync(name, in: names)
+    selectedFiles = result.filter { $0.diffScore < 0.3 }.map { files[$0.index] }
   }
 }

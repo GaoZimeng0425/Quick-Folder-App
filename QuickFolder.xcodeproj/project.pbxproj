@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		457D1D602D3FF66D0061F746 /* Ifrit in Frameworks */ = {isa = PBXBuildFile; productRef = 457D1D5F2D3FF66D0061F746 /* Ifrit */; };
 		BADD67132D38F74500FC7B1D /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = BADD67122D38F74500FC7B1D /* LaunchAtLogin */; };
 		BAF85B182D2B829A0093D44B /* HotKey in Frameworks */ = {isa = PBXBuildFile; productRef = BAF85B172D2B829A0093D44B /* HotKey */; };
 		BAF85B1D2D2B8BF00093D44B /* FullDiskAccess in Frameworks */ = {isa = PBXBuildFile; productRef = BAF85B1C2D2B8BF00093D44B /* FullDiskAccess */; };
@@ -34,6 +35,7 @@
 				BAF85BA12D2B8E4C0093D44B /* Files in Frameworks */,
 				BAF85B1D2D2B8BF00093D44B /* FullDiskAccess in Frameworks */,
 				BAF85BA42D2B8E5B0093D44B /* FileKit in Frameworks */,
+				457D1D602D3FF66D0061F746 /* Ifrit in Frameworks */,
 				BADD67132D38F74500FC7B1D /* LaunchAtLogin in Frameworks */,
 				BAF85B182D2B829A0093D44B /* HotKey in Frameworks */,
 			);
@@ -83,6 +85,7 @@
 				BAF85BA02D2B8E4C0093D44B /* Files */,
 				BAF85BA32D2B8E5B0093D44B /* FileKit */,
 				BADD67122D38F74500FC7B1D /* LaunchAtLogin */,
+				457D1D5F2D3FF66D0061F746 /* Ifrit */,
 			);
 			productName = QuickFolder;
 			productReference = BA6F5E792D2790C300F8A694 /* QuickFolder.app */;
@@ -118,6 +121,7 @@
 				BAF85B9F2D2B8E4C0093D44B /* XCRemoteSwiftPackageReference "Files" */,
 				BAF85BA22D2B8E5B0093D44B /* XCRemoteSwiftPackageReference "FileKit" */,
 				BADD67112D38F74500FC7B1D /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */,
+				457D1D5E2D3FF66D0061F746 /* XCRemoteSwiftPackageReference "Ifrit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BA6F5E7A2D2790C300F8A694 /* Products */;
@@ -356,6 +360,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		457D1D5E2D3FF66D0061F746 /* XCRemoteSwiftPackageReference "Ifrit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ukushu/Ifrit";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		BADD67112D38F74500FC7B1D /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-Modern";
@@ -399,6 +411,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		457D1D5F2D3FF66D0061F746 /* Ifrit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 457D1D5E2D3FF66D0061F746 /* XCRemoteSwiftPackageReference "Ifrit" */;
+			productName = Ifrit;
+		};
 		BADD67122D38F74500FC7B1D /* LaunchAtLogin */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BADD67112D38F74500FC7B1D /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */;

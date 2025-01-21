@@ -8,29 +8,22 @@
 import SwiftUI
 
 struct FileHeader: View {
-  @Binding var selectedDirectoryId: UUID?
   @EnvironmentObject var fileStore: FileStore
   @EnvironmentObject var appStore: AppStore
   @State var sortBy: SortType = .All
   @State var dateBy: DateFilterType = .All
   @State var fileBy: FileFilterType = .All
-  @State var searchQuery: String = ""
   @State var width: CGFloat = 0
+  @State var searchQuery: String = ""
   var onDirectorySelect: ((DirectoryInfo) -> Void)?
   var onAddDirectory: (() -> Void)?
-  @FocusState private var isFocused: Bool {
-    didSet {
-      withAnimation {
-        width = !isFocused ? 150 : 0
-      }
-    }
-  }
+  @FocusState private var isFocused: Bool
 
   @ViewBuilder
   fileprivate func DirectoryListView() -> some View {
     HStack {
       ForEach(fileStore.directories) { directory in
-        let isSelected = selectedDirectoryId == directory.id
+        let isSelected = fileStore.rootSelectedDirectoryID == directory.id
         Button {
           onDirectorySelect?(directory)
         } label: {
@@ -71,8 +64,23 @@ struct FileHeader: View {
         .focused($isFocused)
         .onSubmit {}
         .disableAutocorrection(true)
+        .onChange(of: isFocused) { _, newValue in
+          if newValue {
+            withAnimation {
+              width = 150
+            }
+          } else {
+            withAnimation {
+              width = 0
+              searchQuery = ""
+            }
+          }
+        }
+        .onChange(of: fileStore.currentDirectoryID) { _, _ in
+          isFocused = false
+        }
         .onChange(of: searchQuery) { _, fileName in
-          debugPrint(fileName)
+          fileStore.stringFilter(by: fileName)
         }
         .onSubmit {
           onInputCancle()
@@ -184,7 +192,7 @@ struct FileHeader: View {
 }
 
 #Preview {
-  FileHeader(selectedDirectoryId: .constant(FileStore.shared.directories.first?.id))
+  FileHeader()
     .environmentObject(AppStore.shared)
     .environmentObject(FileStore.shared)
     .frame(width: 400)

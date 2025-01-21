@@ -22,7 +22,7 @@ struct SettingsView: View {
   func onAddDirectory() {
     if let url = QuickFolderApp.shared.appDelegate.selectDownloadsFolder() {
       let info = fileStore.addFolder(url: url)
-      fileStore.selectedDirectoryId = info?.id
+      fileStore.rootSelectedDirectoryID = info?.id
     }
   }
 

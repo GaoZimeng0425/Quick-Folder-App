@@ -42,21 +42,17 @@ class AppStore: ObservableObject {
     isDockIconVisible = isDockIconVisibleStore
     isAutoLaunchEnabled = isAutoLaunchEnabledStore
 
-    debugPrint("isDockIconVisible: \(isDockIconVisible), isPinned: \(isPinned), isAutoLaunchEnabled: \(isAutoLaunchEnabled)")
-
     updateDockIconVisibility()
     updateAutoLaunch()
   }
 
   func updateAutoLaunch() {
-    debugPrint("isAutoLaunchEnabled \(isAutoLaunchEnabled)")
     DispatchQueue.main.async {
       LaunchAtLogin.isEnabled = self.isAutoLaunchEnabled
     }
   }
 
   func updateDockIconVisibility() {
-    debugPrint("isDockIconVisible \(isDockIconVisible)")
     DispatchQueue.main.async {
       NSApp.setActivationPolicy(self.isDockIconVisible ? .regular : .accessory)
     }

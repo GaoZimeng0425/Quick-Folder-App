@@ -15,21 +15,26 @@ struct FileListView: View {
   @EnvironmentObject var appStore: AppStore
   @EnvironmentObject var fileStore: FileStore
   @State private var selectedFile: [FileInfo?] = []
+  @State var searchQuery: String = ""
   @State private var currentDirectoryFiles: [FileInfo] = []
   @State private var subDirectories: [DirectoryInfo] = []
   @FocusState private var focusedItem: FileInfo.ID?
   @State private var isLoading: Bool = false
+  @FocusState private var isFocused: Bool
 
   var body: some View {
     VStack(spacing: 0) {
       VStack(alignment: .center, spacing: 0) {
         FileGranted {
-          FileHeader(selectedDirectoryId: $fileStore.selectedDirectoryId, onDirectorySelect: onDirectorySelect, onAddDirectory: onAddDirectory)
+          FileHeader(
+            onDirectorySelect: onDirectorySelect,
+            onAddDirectory: onAddDirectory
+          )
             .background(.background)
             .environmentObject(fileStore)
             .environmentObject(appStore)
             .onAppear {
-              fileStore.selectedDirectoryId = fileStore.directories.first?.id
+              fileStore.rootSelectedDirectoryID = fileStore.directories.first?.id
             }
 
           if !subDirectories.isEmpty {
@@ -42,7 +47,7 @@ struct FileListView: View {
             Spacer()
             LoadingView()
             Spacer()
-          } else if subDirectories.isEmpty && fileStore.selectedDirectoryId != fileStore.selectedDirectory?.id {
+          } else if subDirectories.isEmpty && fileStore.rootSelectedDirectoryID != fileStore.rootSelectedDirectory?.id {
             Spacer()
             LoadingView()
             Spacer()
@@ -98,16 +103,17 @@ struct FileListView: View {
     if let url = QuickFolderApp.shared.appDelegate.selectDownloadsFolder() {
       isLoading = true
       let info = fileStore.addFolder(url: url)
-      fileStore.selectedDirectoryId = info?.id
+      fileStore.rootSelectedDirectoryID = info?.id
       isLoading = false
     }
   }
 
   func onDirectorySelect(_ directory: DirectoryInfo) {
     subDirectories.removeAll()
-    fileStore.selectedDirectoryId = directory.id
+    fileStore.rootSelectedDirectoryID = directory.id
     Task {
       _ = fileStore.chooseFolder(url: directory.url)
+      
     }
   }
 
