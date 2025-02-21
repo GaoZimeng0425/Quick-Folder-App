@@ -7,7 +7,7 @@
    Easy way to operate MacOS Folder
     <br />
     ·
-    <a href="https://github.com/GaoZimeng0425/Wallpapers/issues">Report Bug</a>
+    <a href="https://github.com/GaoZimeng0425/Quick-Folder-App/issues">Report Bug</a>
     ·
   </p>
 </div>
