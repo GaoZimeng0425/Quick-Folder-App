@@ -7,6 +7,29 @@
 
 import SwiftUI
 
+struct CustomHoverCursorModifier: ViewModifier {
+//  @State private var isHovering = false
+  var hoverCursor: NSCursor? = NSCursor.pointingHand // 可以传入自定义的光标图标
+
+  func body(content: Content) -> some View {
+    content
+      .onHover { hovering in
+//        isHovering = hovering
+        if hovering {
+          hoverCursor?.push()
+        } else {
+          hoverCursor?.pop()
+        }
+      }
+  }
+}
+
+extension View {
+  func hoverCursor(hoverCursor: NSCursor? = NSCursor.pointingHand) -> some View {
+    modifier(CustomHoverCursorModifier(hoverCursor: hoverCursor))
+  }
+}
+
 extension View {
   func rounded(_ radius: CGFloat) -> some View {
     return contentShape(RoundedRectangle(cornerRadius: radius))

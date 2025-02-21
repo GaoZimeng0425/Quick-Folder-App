@@ -9,6 +9,7 @@ import FullDiskAccess
 import HotKey
 import SwiftUI
 
+@MainActor
 class AppDelegate: NSObject, NSApplicationDelegate {
   private var fileSystemController: PanelController!
   private let showAppHotKey = HotKey(key: .three, modifiers: [.control])
@@ -69,9 +70,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   func selectDownloadsFolder() -> URL? {
     let panel = NSOpenPanel()
+    panel.level = .floating
     panel.allowsMultipleSelection = false
     panel.canChooseFiles = false
     panel.canChooseDirectories = true
+    panel.makeKeyAndOrderFront(nil)
+    NSApp.activate(ignoringOtherApps: true)
 
     if panel.runModal() == .OK, let selectedURL = panel.url {
       return selectedURL

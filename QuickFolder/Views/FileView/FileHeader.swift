@@ -4,7 +4,6 @@
 //
 //  Created by GaoZimeng on 2024/12/24.
 //
-
 import SwiftUI
 
 struct FileHeader: View {
@@ -19,34 +18,68 @@ struct FileHeader: View {
   var onAddDirectory: (() -> Void)?
   @FocusState private var isFocused: Bool
 
+  var body: some View {
+    LazyVStack(spacing: 10) {
+      HStack(spacing: 10) {
+        ViewThatFits {
+          DirectoryListView()
+          ScrollView(.horizontal, showsIndicators: false) {
+            DirectoryListView()
+          }
+        }
+        IconButtonView(action: {
+          onAddDirectory?()
+        }, systemName: "plus")
+
+        Spacer()
+
+        IconButtonView(isActive: appStore.isPinned, action: {
+          appStore.isPinned.toggle()
+        }, systemName: appStore.isPinned ? "pin" : "pin.slash")
+          .keyboardShortcut("p", modifiers: .command)
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+
+      HStack {
+        ScrollView(.horizontal, showsIndicators: false) {
+          PickFileView()
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    .padding(.horizontal)
+    .padding(.top)
+    .padding(.bottom, 10)
+  }
+
   @ViewBuilder
   fileprivate func DirectoryListView() -> some View {
     HStack {
       ForEach(fileStore.directories) { directory in
-        let isSelected = fileStore.rootSelectedDirectoryID == directory.id
-        Button {
+        DirectoryButtonView(directory: directory, isSelected: fileStore.rootSelectedDirectoryID == directory.id) {
           onDirectorySelect?(directory)
-        } label: {
-          HStack(spacing: 4) {
-            Image(systemName: "folder")
-              .font(.body)
-              .fontWeight(.semibold)
-              .foregroundColor(isSelected ? .accentColor : .primary.opacity(0.6))
-
-            Text(directory.name)
-              .font(.body)
-              .foregroundColor(isSelected ? .primary : .primary.opacity(0.6))
+        }
+        .contextMenu {
+          Button("Open in Finder") {
+            NSWorkspace.shared.open(directory.url)
+          }
+          Button("Delete", role: .destructive) {
+            fileStore.removeFolder(directory: directory)
+            fileStore.rootSelectedDirectoryID = fileStore.directories.first?.id
           }
         }
-        .focusable()
-        .buttonStyle(FixAwfulPerformanceStyle(bgColor: isSelected ? .gray : .black))
       }
     }
   }
 
-  func onInputCancle() {
-    isFocused = false
-    searchQuery = ""
+  @ViewBuilder
+  fileprivate func PickFileView() -> some View {
+    HStack(spacing: 5) {
+      SearchInputView()
+      SortFileView()
+      DateFilterView()
+      FileFilterView()
+    }
   }
 
   @ViewBuilder
@@ -65,15 +98,9 @@ struct FileHeader: View {
         .onSubmit {}
         .disableAutocorrection(true)
         .onChange(of: isFocused) { _, newValue in
-          if newValue {
-            withAnimation {
-              width = 150
-            }
-          } else {
-            withAnimation {
-              width = 0
-              searchQuery = ""
-            }
+          withAnimation {
+            width = newValue ? 150 : 0
+            if !newValue { searchQuery = "" }
           }
         }
         .onChange(of: fileStore.currentDirectoryID) { _, _ in
@@ -83,10 +110,10 @@ struct FileHeader: View {
           fileStore.stringFilter(by: fileName)
         }
         .onSubmit {
-          onInputCancle()
+          onInputCancel()
         }
         .onExitCommand {
-          onInputCancle()
+          onInputCancel()
         }
         .padding(.horizontal, 8)
         .frame(width: width)
@@ -103,11 +130,11 @@ struct FileHeader: View {
           .font(.body)
           .fontWeight(.semibold)
         Text(sortBy.title)
-      }, options: SortType.allCases, value: $sortBy
+      }, options: SortType.allCases, value: $sortBy,
+      onClick: { _ in
+        fileStore.sortFiles(by: sortBy, order: .forward)
+      }
     )
-    .onChange(of: sortBy) { _, sortBy in
-      fileStore.sortFiles(by: sortBy)
-    }
   }
 
   @ViewBuilder
@@ -140,54 +167,32 @@ struct FileHeader: View {
     }
   }
 
-  @ViewBuilder
-  fileprivate func PickFileView() -> some View {
-    HStack(spacing: 20) {
-      SearchInputView()
-
-      SortFileView()
-
-      DateFilterView()
-
-      FileFilterView()
-    }
+  func onInputCancel() {
+    isFocused = false
+    searchQuery = ""
   }
+}
+
+struct DirectoryButtonView: View {
+  let directory: DirectoryInfo
+  let isSelected: Bool
+  let action: () -> Void
 
   var body: some View {
-    LazyVStack(spacing: 10) {
-      HStack(spacing: 10) {
-        ViewThatFits {
-          DirectoryListView()
-          ScrollView(.horizontal) {
-            DirectoryListView()
-          }
-          .scrollIndicators(.hidden)
-        }
-        IconButtonView(action: {
-          onAddDirectory?()
-        }, systemName: "plus")
+    Button(action: action) {
+      HStack(spacing: 4) {
+        Image(systemName: "folder")
+          .font(.body)
+          .fontWeight(.semibold)
+          .foregroundColor(isSelected ? .accentColor : .primary.opacity(0.6))
 
-        Spacer()
-
-        IconButtonView(isActive: appStore.isPinned, action: {
-          appStore.isPinned.toggle()
-        }, systemName: appStore.isPinned ? "pin" : "pin.slash")
-          .keyboardShortcut("p", modifiers: .command)
+        Text(directory.name)
+          .font(.body)
+          .foregroundColor(isSelected ? .primary : .primary.opacity(0.6))
       }
-//      .contentMargins(.horizontal, 0, for: .scrollIndicators)
-//      .scrollTargetBehavior(.paging)
-      .frame(maxWidth: .infinity, alignment: .leading)
-
-      HStack {
-        ScrollView(.horizontal, showsIndicators: false) {
-          PickFileView()
-        }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
     }
-    .padding(.horizontal)
-    .padding(.top)
-    .padding(.bottom, 10)
+    .focusable()
+    .buttonStyle(FixAwfulPerformanceStyle(bgColor: isSelected ? .gray : .black))
   }
 }
 

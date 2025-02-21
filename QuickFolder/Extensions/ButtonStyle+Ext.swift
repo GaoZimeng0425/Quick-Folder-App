@@ -38,6 +38,7 @@ extension Button {
       .padding(10)
       .background(Color.gray.opacity(0.1))
       .rounded(8)
+      .hoverCursor()
   }
 }
 
@@ -56,7 +57,9 @@ struct IconButtonView: View {
         .frame(width: 32, height: 32)
         .background(!isActive ? .gray.opacity(0.2) : .accentColor.opacity(0.2))
         .rounded(8)
-    }.buttonStyle(.plain)
+    }
+    .buttonStyle(.plain)
+    .hoverCursor()
   }
 }
 
