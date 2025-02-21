@@ -28,11 +28,32 @@ enum SortType: String, Selectable {
   var title: String {
     switch self {
     case .All: return "Sort By"
+    case .CreationDate: return "Date Created"
     default: return rawValue
     }
   }
 
-  var label: String { rawValue }
+  var label: String {
+    switch self {
+    case .CreationDate: return "Date Created"
+    default: return rawValue
+    }
+  }
+
+  func sort(_ files: [FileInfo], order: SortOrder = .reverse) -> [FileInfo] {
+    switch self {
+    case .Name:
+      return files.sorted(using: SortDescriptor(\.name, order: order))
+    case .Kind:
+      return files.sorted(using: SortDescriptor(\.kind, order: order))
+    case .CreationDate:
+      return files.sorted(using: SortDescriptor(\.creationDate, order: order))
+    case .Size:
+      return files.sorted(using: SortDescriptor(\.size, order: order))
+    case .All:
+      return files
+    }
+  }
 }
 
 enum DateFilterType: String, Selectable {
@@ -157,10 +178,11 @@ struct DirectoryInfo: Identifiable, Equatable, Hashable {
   }
 }
 
+@MainActor
 class FileStore: ObservableObject {
   static let shared = FileStore()
   var files: [FileInfo] = []
-  @AppStorage("directoriseString") var directoriseString: String = ""
+  @AppStorage("directoriesString") var directoriesString: String = ""
   @Published var directories: [DirectoryInfo] = [] {
     didSet { encodeDirectories() }
   }
@@ -169,47 +191,55 @@ class FileStore: ObservableObject {
   @Published var selectedFiles: [FileInfo] = []
   @Published var isWindowVisible: Bool = true
   @Published var rootSelectedDirectoryID: UUID?
+  var rootSelectedDirectory: DirectoryInfo? {
+    directories.first { $0.id == rootSelectedDirectoryID }
+  }
   @Published var currentDirectoryID: UUID?
-  @Published var rootSelectedDirectory: DirectoryInfo? {
+  @Published var selectedDirecory: DirectoryInfo? {
     didSet {
-      files = FileService.shared.getFiles(at: rootSelectedDirectory?.url)
-      selectedFiles = files.filter { $0.isHidden == isHiddenFilter }
+      files = FileService.shared.getFiles(at: selectedDirecory?.url)
+      DispatchQueue.main.async {
+        self.selectedFiles = self.files.filter { $0.isHidden == self.isHiddenFilter }
+      }
     }
   }
 
+  @Published var filters: [SortType] = []
+
   init() {
     decodeDirectories()
-    rootSelectedDirectory = directories.first
+    selectedDirecory = directories.first
   }
 
   func decodeDirectories() {
-    directories = directoriseString.split(separator: ",").map {
+    directories = directoriesString.split(separator: ",").map {
       let url = URL(string: $0.description)!
       return DirectoryInfo(name: url.lastPathComponent, url: url)
     }
   }
 
   func encodeDirectories() {
-    directoriseString = directories.map {
+    directoriesString = directories.map {
       $0.url.absoluteString
     }.joined(separator: ",")
   }
 
+  // TODO: fix subFolder bug
   func chooseFolder(url: URL?) -> DirectoryInfo? {
     let info = directories.first { $0.url == url }
     if info != nil {
-      rootSelectedDirectory = info
+      selectedDirecory = info
     } else if let url = url {
       let info = DirectoryInfo(name: url.lastPathComponent, url: url)
-      rootSelectedDirectory = info
+      selectedDirecory = info
     }
-    currentDirectoryID = rootSelectedDirectory?.id
-    return rootSelectedDirectory
+    currentDirectoryID = selectedDirecory?.id
+    return selectedDirecory
   }
 
   func removeFolder(directory: DirectoryInfo) {
     directories.remove(at: directories.firstIndex { $0 == directory }!)
-    if rootSelectedDirectory == directory {
+    if selectedDirecory == directory {
       let info = chooseFolder(url: directories.first?.url)
       currentDirectoryID = info?.id
     }
@@ -217,7 +247,7 @@ class FileStore: ObservableObject {
 
   func removeAllFolder() {
     directories.removeAll()
-    rootSelectedDirectory = nil
+    selectedDirecory = nil
     rootSelectedDirectoryID = nil
     currentDirectoryID = nil
   }
@@ -229,8 +259,8 @@ class FileStore: ObservableObject {
     return chooseFolder(url: url)
   }
 
-  func sortFiles(by sortType: SortType) {
-    selectedFiles = selectedFiles.sort(by: sortType)
+  func sortFiles(by type: SortType, order: SortOrder = .reverse) {
+    selectedFiles = type.sort(files, order: order)
   }
 
   func typeFilter(by type: FileFilterType) {

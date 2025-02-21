@@ -131,8 +131,8 @@ struct FileHeader: View {
           .fontWeight(.semibold)
         Text(sortBy.title)
       }, options: SortType.allCases, value: $sortBy,
-      onClick: { _ in
-        fileStore.sortFiles(by: sortBy, order: .forward)
+      onClick: { _, type in
+        fileStore.sortFiles(by: type, order: .forward)
       }
     )
   }

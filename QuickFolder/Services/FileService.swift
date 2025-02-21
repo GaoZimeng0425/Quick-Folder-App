@@ -9,8 +9,8 @@ import FileKit
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct FileInfo: Identifiable {
-  let id = UUID()
+struct FileInfo: Identifiable, Decodable {
+  var id = UUID()
   let name: String
   let kind: String
   let utType: UTType
@@ -127,5 +127,14 @@ extension Array where Element == FileInfo {
     case .Size: return sorted { $0.size < $1.size }
     default: return sorted { $0.name < $1.name }
     }
+  }
+}
+
+extension FileService {
+  func trashItem(at: URL) throws -> Void {
+    try FileManager.default.trashItem(at: at, resultingItemURL: nil)
+  }
+  func deleteItem(at: URL) throws -> Void {
+    try FileManager.default.removeItem(at: at)
   }
 }

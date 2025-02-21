@@ -25,7 +25,7 @@ struct FileInfoView: View {
       Spacer()
       PreviewImage(file: file)
         .padding(.all, 5)
-        .background(isSelected ? .white.opacity(0.2) : .clear)
+        .background(isSelected ? .white.opacity(0.2) : .clear, in: .rect(cornerRadius: 5))
       Spacer().frame(height: 5)
       Text(file.name)
         .lineLimit(2)
@@ -34,9 +34,10 @@ struct FileInfoView: View {
         .truncationMode(.middle)
         .foregroundColor(.primary)
         .padding(.horizontal, 5)
-        .padding(.vertical, 4)
+        .padding(.vertical, 2)
         .background(isSelected ? Color.accentColor.opacity(0.7) : .clear)
         .rounded(2)
+
       if isImage {
         let size = NSImage(contentsOf: file.url)?.size ?? .zero
         Text("\(Int(size.width)) x \(Int(size.height))")
@@ -54,6 +55,7 @@ struct FileInfoView: View {
     .padding(.horizontal, 5)
     .frame(height: 110)
     .frame(maxWidth: .infinity)
+    .background(.secondary.opacity(0.05))
     .rounded(6)
     .popover(isPresented: $isHover, attachmentAnchor: .point(.leading), arrowEdge: .leading) {
       if isImage {
