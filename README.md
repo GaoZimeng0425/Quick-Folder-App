@@ -1,12 +1,25 @@
+<div>
+  <h3 align="center">Quick-Finder</h3>
+  <p align="center">
+    <img align="center" alt="logo" src="./Resource/logo.png" width="200" />
+  </p>
+  <p align="center">
+   Easy way to operate MacOS Folder
+    <br />
+    ·
+    <a href="https://github.com/GaoZimeng0425/Wallpapers/issues">Report Bug</a>
+    ·
+  </p>
+</div>
 
-# Quick-Finder
-![logo](./Resource/logo.png)
-
- Easy way to operate MacOS Folder
-
-## Preview
-![app](./Resource/screenshot-app.png)
-![preview](./Resource/Screenshot-preview.png)
+<h3 align="center">APP screenshot</h3>
+<p align="center">
+  <img align="center" alt="app" src="./Resource/screenshot-app.png" width="400" />
+</p>
+<h3 align="center">image preview</h3>
+<p align="center">
+  <img align="center" alt="preview" src="./Resource/Screenshot-preview.png" width="400" />
+</p>
 
 ## Highlights
 
