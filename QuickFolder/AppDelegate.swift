@@ -38,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     insetFileWindow()
   }
 
-  @MainActor func insetFileWindow() {
+  @MainActor private func insetFileWindow() {
     let mainWindow: NSRect = getScreenWithMouse()?.visibleFrame ?? .zero
     let contentView = NSHostingView(rootView: FileListView().environmentObject(appStore).environmentObject(fileStore))
     fileSystemController = PanelController(contentRect: NSRect(x: 0, y: 0, width: 450, height: mainWindow.height * 0.8))
@@ -59,13 +59,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
   }
 
   @MainActor func showWindow() {
-    fileSystemController.showWithAnimation(
+    fileSystemController.showWithMousePosition(
       from: MouseService.shared.getMousePosition()
     )
   }
 
   @MainActor func hideWindow() {
-    fileSystemController.hideWithAnimation()
+    Task {
+      await fileSystemController.hideWithAnimation()
+    }
   }
 
   func selectDownloadsFolder() -> URL? {

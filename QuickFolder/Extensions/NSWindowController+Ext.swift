@@ -10,7 +10,6 @@ import AppKit
 extension NSWindowController {
   var isVisible: Bool {
     get { window!.isVisible }
-    set { window!.setIsVisible(newValue) }
   }
 
   @MainActor func addContent(contentView: NSView) {

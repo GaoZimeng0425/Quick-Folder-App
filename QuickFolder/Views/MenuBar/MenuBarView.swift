@@ -11,15 +11,6 @@ struct MenuBarView: View {
   var appDelegate: AppDelegate = QuickFolderApp.shared.appDelegate
   @EnvironmentObject var appStore: AppStore
 
-  init() {
-//    appState.$isPinned.debounce(for: .milliseconds(100), scheduler: RunLoop.main)
-//      .sink { isPinned in
-//        if isPinned {
-//          NSWorkspace.shared.hideOtherApplications()
-//        }
-//      }
-  }
-
   var body: some View {
     VStack(alignment: .center, spacing: 10) {
       Text(Bundle.main.appName)
